@@ -8,354 +8,58 @@
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        *, *::before, *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #050505;
-            color: #ffffff;
-            line-height: 1.625;
-            overflow-x: hidden;
-        }
-
-        /* ── Noise Overlay ── */
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            pointer-events: none;
-            opacity: 0.03;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-        }
-
-        /* ── Scrollbar ── */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background-color: #050505; color: #ffffff; line-height: 1.625; overflow-x: hidden; }
+        body::before { content: ''; position: fixed; inset: 0; z-index: 9999; pointer-events: none; opacity: 0.03; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #050505; }
         ::-webkit-scrollbar-thumb { background: #ef4444; border-radius: 3px; }
-
-        /* ── Canvas Background ── */
-        #particle-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        /* ── Glass Panel ── */
-        .glass-panel {
-            background: rgba(255,255,255,0.03);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255,255,255,0.08);
-            box-shadow: 0 4px 30px rgba(0,0,0,0.1);
-        }
-
-        /* ── Keyframes ── */
-        @keyframes slideInUp {
-            from { transform: translateY(40px); opacity: 0; }
-            to   { transform: translateY(0); opacity: 1; }
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to   { opacity: 1; }
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50%      { transform: translateY(-10px); }
-        }
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 20px -5px rgba(239,68,68,0.4); }
-            50%      { box-shadow: 0 0 40px -5px rgba(239,68,68,0.7); }
-        }
-        @keyframes ping {
-            75%, 100% { transform: scale(2); opacity: 0; }
-        }
-        @keyframes spin-slow {
-            from { transform: rotate(0deg); }
-            to   { transform: rotate(360deg); }
-        }
-        @keyframes gradient-shift {
-            0%   { background-position: 0% 50%; }
-            50%  { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        @keyframes typewriter {
-            from { width: 0; }
-            to   { width: 100%; }
-        }
-        @keyframes blink-caret {
-            from, to { border-color: transparent; }
-            50%      { border-color: #ef4444; }
-        }
-
-        .animate-slide-in {
-            animation: slideInUp 0.7s ease-out forwards;
-            opacity: 0;
-        }
-        .animate-fade-in {
-            animation: fadeIn 0.8s ease-out forwards;
-            opacity: 0;
-        }
-        .animate-float {
-            animation: float 5s ease-in-out infinite;
-        }
-
-        /* ── Scroll Reveal ── */
-        .reveal {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .reveal.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* ── 3D Card ── */
-        .card-3d {
-            transform-style: preserve-3d;
-            perspective: 1000px;
-            transition: transform 0.4s ease, box-shadow 0.4s ease;
-        }
-        .card-3d:hover {
-            transform: translateY(-8px) rotateX(2deg) rotateY(2deg);
-            box-shadow: 0 20px 60px -15px rgba(239,68,68,0.15);
-        }
-
-        /* ── Typing Effect ── */
-        .typing-text {
-            display: inline-block;
-            overflow: hidden;
-            white-space: nowrap;
-            border-right: 3px solid #ef4444;
-            animation:
-                typewriter 2.5s steps(30, end) forwards,
-                blink-caret 0.75s step-end infinite;
-            width: 0;
-        }
-
-        /* ── Skill Bar ── */
-        .skill-bar-track {
-            background: rgba(255,255,255,0.05);
-            border-radius: 999px;
-            height: 6px;
-            overflow: hidden;
-        }
-        .skill-bar-fill {
-            height: 100%;
-            border-radius: 999px;
-            background: linear-gradient(90deg, #ef4444, #f87171);
-            width: 0;
-            transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        /* ── Magnetic Button ── */
-        .magnetic-btn {
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 14px 32px;
-            background: #ef4444;
-            color: #ffffff;
-            font-weight: 600;
-            font-size: 0.875rem;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.3s ease;
-            text-decoration: none;
-        }
-        .magnetic-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 30px -5px rgba(239,68,68,0.6);
-        }
-        .magnetic-btn:active {
-            transform: scale(0.97);
-        }
-
-        .outline-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 14px 32px;
-            background: transparent;
-            color: #ffffff;
-            font-weight: 600;
-            font-size: 0.875rem;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-        .outline-btn:hover {
-            border-color: #ef4444;
-            color: #ef4444;
-            transform: scale(1.05);
-        }
-
-        /* ── Nav Active Link ── */
-        .nav-link {
-            position: relative;
-            color: #9ca3af;
-            text-decoration: none;
-            font-size: 0.875rem;
-            font-weight: 500;
-            letter-spacing: 0.025em;
-            transition: color 0.3s ease;
-            padding: 4px 0;
-        }
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: #ef4444;
-            border-radius: 1px;
-            transition: width 0.3s ease;
-        }
-        .nav-link:hover,
-        .nav-link.active {
-            color: #ffffff;
-        }
-        .nav-link:hover::after,
-        .nav-link.active::after {
-            width: 100%;
-        }
-
-        /* ── Section Divider ── */
-        .section-label {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 10px;
-            font-weight: 600;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: #ef4444;
-            margin-bottom: 12px;
-        }
-        .section-label::before {
-            content: '';
-            display: block;
-            width: 20px;
-            height: 1px;
-            background: #ef4444;
-        }
-
-        /* ── Project Image ── */
-        .project-img-wrap {
-            overflow: hidden;
-            border-radius: 8px;
-            margin-bottom: 16px;
-        }
-        .project-img-wrap img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            filter: grayscale(100%);
-            transition: all 0.7s ease-in-out;
-        }
-        .project-img-wrap:hover img {
-            filter: grayscale(0%);
-            transform: scale(1.05);
-        }
-
-        /* ── Contact Glow ── */
-        .contact-glow {
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(239,68,68,0.12) 0%, transparent 70%);
-            border-radius: 50%;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-        }
-
-        /* ── Mobile Menu ── */
-        .mobile-menu {
-            position: fixed;
-            top: 0;
-            right: -100%;
-            width: 75%;
-            max-width: 320px;
-            height: 100vh;
-            background: #0a0a0a;
-            border-left: 1px solid rgba(255,255,255,0.05);
-            z-index: 200;
-            transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            padding: 80px 32px 32px;
-        }
-        .mobile-menu.open {
-            right: 0;
-        }
-        .mobile-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            z-index: 199;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-        .mobile-overlay.open {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        /* ── Toast ── */
-        .toast {
-            position: fixed;
-            bottom: 32px;
-            right: 32px;
-            padding: 14px 24px;
-            border-radius: 8px;
-            font-size: 0.875rem;
-            font-weight: 500;
-            z-index: 10000;
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-        .toast-success {
-            background: #065f46;
-            color: #a7f3d0;
-            border: 1px solid #10b981;
-        }
-        .toast-error {
-            background: #7f1d1d;
-            color: #fca5a5;
-            border: 1px solid #ef4444;
-        }
+        #particle-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .glass-panel { background: rgba(255,255,255,0.03); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 4px 30px rgba(0,0,0,0.1); }
+        @keyframes slideInUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+        @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
+        @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .animate-slide-in { animation: slideInUp 0.7s ease-out forwards; opacity: 0; }
+        .animate-fade-in { animation: fadeIn 0.8s ease-out forwards; opacity: 0; }
+        .animate-float { animation: float 5s ease-in-out infinite; }
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        .card-3d { transform-style: preserve-3d; perspective: 1000px; transition: transform 0.4s ease, box-shadow 0.4s ease; }
+        .card-3d:hover { transform: translateY(-8px) rotateX(2deg) rotateY(2deg); box-shadow: 0 20px 60px -15px rgba(239,68,68,0.15); }
+        .skill-bar-track { background: rgba(255,255,255,0.05); border-radius: 999px; height: 6px; overflow: hidden; }
+        .skill-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #ef4444, #f87171); width: 0; transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
+        .magnetic-btn { position: relative; display: inline-flex; align-items: center; gap: 8px; padding: 14px 32px; background: #ef4444; color: #ffffff; font-weight: 600; font-size: 0.875rem; letter-spacing: 0.05em; text-transform: uppercase; border: none; border-radius: 8px; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.3s ease; text-decoration: none; }
+        .magnetic-btn:hover { transform: scale(1.05); box-shadow: 0 0 30px -5px rgba(239,68,68,0.6); }
+        .magnetic-btn:active { transform: scale(0.97); }
+        .outline-btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 32px; background: transparent; color: #ffffff; font-weight: 600; font-size: 0.875rem; letter-spacing: 0.05em; text-transform: uppercase; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-decoration: none; }
+        .outline-btn:hover { border-color: #ef4444; color: #ef4444; transform: scale(1.05); }
+        .nav-link { position: relative; color: #9ca3af; text-decoration: none; font-size: 0.875rem; font-weight: 500; letter-spacing: 0.025em; transition: color 0.3s ease; padding: 4px 0; }
+        .nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #ef4444; border-radius: 1px; transition: width 0.3s ease; }
+        .nav-link:hover, .nav-link.active { color: #ffffff; }
+        .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+        .section-label { display: inline-flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #ef4444; margin-bottom: 12px; }
+        .section-label::before { content: ''; display: block; width: 20px; height: 1px; background: #ef4444; }
+        .project-img-wrap { overflow: hidden; border-radius: 8px 8px 0 0; }
+        .project-img-wrap svg { width: 100%; height: auto; display: block; transition: transform 0.7s ease-in-out; }
+        .project-card-link:hover .project-img-wrap svg { transform: scale(1.05); }
+        .contact-glow { position: absolute; width: 300px; height: 300px; background: radial-gradient(circle, rgba(239,68,68,0.12) 0%, transparent 70%); border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; }
+        .mobile-menu { position: fixed; top: 0; right: -100%; width: 75%; max-width: 320px; height: 100vh; background: #0a0a0a; border-left: 1px solid rgba(255,255,255,0.05); z-index: 200; transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1); padding: 80px 32px 32px; }
+        .mobile-menu.open { right: 0; }
+        .mobile-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 199; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .mobile-overlay.open { opacity: 1; pointer-events: all; }
+        .toast { position: fixed; bottom: 32px; right: 32px; padding: 14px 24px; border-radius: 8px; font-size: 0.875rem; font-weight: 500; z-index: 10000; transform: translateY(100px); opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast-success { background: #065f46; color: #a7f3d0; border: 1px solid #10b981; }
+        .toast-error { background: #7f1d1d; color: #fca5a5; border: 1px solid #ef4444; }
+        .project-card-link { display: block; text-decoration: none; color: inherit; cursor: pointer; }
+        .project-card-link:focus-visible { outline: 2px solid #ef4444; outline-offset: 4px; border-radius: 1rem; }
     </style>
 </head>
 <body>
 
-<!-- Particle Canvas -->
 <canvas id="particle-canvas"></canvas>
 
 <!-- ════════════════════════════════════════ -->
@@ -366,8 +70,6 @@
         <span class="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-sm font-bold">D</span>
         Dev<span class="text-red-500">Portfolio</span>
     </a>
-
-    <!-- Desktop Links -->
     <ul class="hidden md:flex items-center gap-6">
         <li><a href="#home" class="nav-link active" data-section="home">Home</a></li>
         <li><a href="#about" class="nav-link" data-section="about">About</a></li>
@@ -375,12 +77,7 @@
         <li><a href="#projects" class="nav-link" data-section="projects">Projects</a></li>
         <li><a href="#contact" class="nav-link" data-section="contact">Contact</a></li>
     </ul>
-
-    <div class="hidden md:block">
-        <a href="#contact" class="magnetic-btn text-xs px-5 py-2.5">Hire Me</a>
-    </div>
-
-    <!-- Hamburger -->
+    <div class="hidden md:block"><a href="#contact" class="magnetic-btn text-xs px-5 py-2.5">Hire Me</a></div>
     <button id="menu-toggle" class="md:hidden flex flex-col gap-1.5 p-2" aria-label="Toggle menu">
         <span class="block w-5 h-0.5 bg-white transition-all duration-300 origin-center" id="bar1"></span>
         <span class="block w-5 h-0.5 bg-white transition-all duration-300" id="bar2"></span>
@@ -388,7 +85,6 @@
     </button>
 </nav>
 
-<!-- Mobile Menu -->
 <div class="mobile-overlay" id="mobile-overlay"></div>
 <div class="mobile-menu" id="mobile-menu">
     <ul class="flex flex-col gap-6">
@@ -398,68 +94,46 @@
         <li><a href="#projects" class="text-2xl font-medium text-gray-300 hover:text-white transition-colors mobile-link">Projects</a></li>
         <li><a href="#contact" class="text-2xl font-medium text-gray-300 hover:text-white transition-colors mobile-link">Contact</a></li>
     </ul>
-    <div class="mt-10">
-        <a href="#contact" class="magnetic-btn w-full justify-center mobile-link">Hire Me</a>
-    </div>
+    <div class="mt-10"><a href="#contact" class="magnetic-btn w-full justify-center mobile-link">Hire Me</a></div>
 </div>
 
 <!-- ════════════════════════════════════════ -->
 <!-- HERO                                    -->
 <!-- ════════════════════════════════════════ -->
 <header id="home" class="relative min-h-screen flex items-center justify-center px-6 overflow-hidden">
-    <!-- Background Glow -->
     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-red-500/5 blur-[120px] pointer-events-none"></div>
-    <div class="absolute top-20 right-20 w-[300px] h-[300px] rounded-full border border-red-500/10 animate-float pointer-events-none" style="animation-delay: 1s;"></div>
-    <div class="absolute bottom-32 left-16 w-[200px] h-[200px] rounded-full border border-white/5 animate-float pointer-events-none" style="animation-delay: 2s;"></div>
-
-    <!-- Spinning Ring -->
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] md:w-[700px] md:h-[700px] rounded-full border border-white/[0.03] pointer-events-none" style="animation: spin-slow 60s linear infinite;"></div>
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] md:w-[550px] md:h-[550px] rounded-full border border-red-500/[0.05] pointer-events-none" style="animation: spin-slow 40s linear infinite reverse;"></div>
-
+    <div class="absolute top-20 right-20 w-[300px] h-[300px] rounded-full border border-red-500/10 animate-float pointer-events-none" style="animation-delay:1s;"></div>
+    <div class="absolute bottom-32 left-16 w-[200px] h-[200px] rounded-full border border-white/5 animate-float pointer-events-none" style="animation-delay:2s;"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] md:w-[700px] md:h-[700px] rounded-full border border-white/[0.03] pointer-events-none" style="animation:spin-slow 60s linear infinite;"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] md:w-[550px] md:h-[550px] rounded-full border border-red-500/[0.05] pointer-events-none" style="animation:spin-slow 40s linear infinite reverse;"></div>
     <div class="relative z-10 text-center max-w-4xl">
-        <!-- Status Badge -->
-        <div class="inline-flex items-center gap-2 glass-panel rounded-full px-4 py-2 mb-8 animate-slide-in" style="animation-delay: 0.3s;">
+        <div class="inline-flex items-center gap-2 glass-panel rounded-full px-4 py-2 mb-8 animate-slide-in" style="animation-delay:0.3s;">
             <span class="relative flex h-2.5 w-2.5">
-                <span class="absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" style="animation: ping 1s cubic-bezier(0,0,0.2,1) infinite;"></span>
+                <span class="absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" style="animation:ping 1s cubic-bezier(0,0,0.2,1) infinite;"></span>
                 <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
             </span>
             <span class="text-xs font-medium text-gray-400 tracking-wide">Available for freelance work</span>
         </div>
-
-        <h1 class="text-4xl md:text-7xl font-semibold tracking-tight leading-[1.1] mb-6 animate-slide-in" style="animation-delay: 0.5s;">
+        <h1 class="text-4xl md:text-7xl font-semibold tracking-tight leading-[1.1] mb-6 animate-slide-in" style="animation-delay:0.5s;">
             Hi, I'm <span class="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">Brtie M.</span>
         </h1>
-
-        <div class="flex items-center justify-center gap-3 mb-6 animate-slide-in" style="animation-delay: 0.7s;">
+        <div class="flex items-center justify-center gap-3 mb-6 animate-slide-in" style="animation-delay:0.7s;">
             <div class="h-px w-8 bg-gradient-to-r from-transparent to-red-500/50"></div>
-            <p class="text-lg md:text-xl text-gray-400 font-light">
-                Full-Stack Web Developer
-            </p>
+            <p class="text-lg md:text-xl text-gray-400 font-light">Full-Stack Web Developer</p>
             <div class="h-px w-8 bg-gradient-to-l from-transparent to-red-500/50"></div>
         </div>
-
-        <p class="text-gray-500 text-base md:text-lg max-w-2xl mx-auto mb-10 animate-slide-in" style="animation-delay: 0.9s;">
+        <p class="text-gray-500 text-base md:text-lg max-w-2xl mx-auto mb-10 animate-slide-in" style="animation-delay:0.9s;">
             I build clean, scalable, and user-friendly web applications with modern technologies. Turning complex problems into simple, beautiful, and intuitive designs.
         </p>
-
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-in" style="animation-delay: 1.1s;">
-            <a href="#projects" class="magnetic-btn">
-                <iconify-icon icon="lucide:folder-open" width="16"></iconify-icon>
-                View My Work
-            </a>
-            <a href="#contact" class="outline-btn">
-                <iconify-icon icon="lucide:send" width="16"></iconify-icon>
-                Get In Touch
-            </a>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-in" style="animation-delay:1.1s;">
+            <a href="#projects" class="magnetic-btn"><iconify-icon icon="lucide:folder-open" width="16"></iconify-icon> View My Work</a>
+            <a href="#contact" class="outline-btn"><iconify-icon icon="lucide:send" width="16"></iconify-icon> Get In Touch</a>
         </div>
-
-        <!-- Stats -->
-        <div class="flex items-center justify-center gap-8 md:gap-16 mt-16 animate-slide-in" style="animation-delay: 1.3s;">
+        <div class="flex items-center justify-center gap-8 md:gap-16 mt-16 animate-slide-in" style="animation-delay:1.3s;">
             <div class="text-center">
                 <div class="text-2xl md:text-3xl font-semibold text-white" id="stat-projects">0</div>
                 <div class="text-xs text-gray-500 uppercase tracking-widest mt-1">Projects</div>
             </div>
-            <div class="w-px h-10 bg-white/10"></div>
             <div class="w-px h-10 bg-white/10"></div>
             <div class="text-center">
                 <div class="text-2xl md:text-3xl font-semibold text-white" id="stat-years">0</div>
@@ -467,12 +141,10 @@
             </div>
         </div>
     </div>
-
-    <!-- Scroll Indicator -->
-    <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-fade-in" style="animation-delay: 1.5s;">
+    <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-fade-in" style="animation-delay:1.5s;">
         <span class="text-[10px] text-gray-600 uppercase tracking-[0.2em]">Scroll</span>
         <div class="w-5 h-8 rounded-full border border-white/10 flex items-start justify-center p-1">
-            <div class="w-1 h-2 bg-red-500 rounded-full" style="animation: float 2s ease-in-out infinite;"></div>
+            <div class="w-1 h-2 bg-red-500 rounded-full" style="animation:float 2s ease-in-out infinite;"></div>
         </div>
     </div>
 </header>
@@ -484,61 +156,31 @@
     <div class="max-w-5xl mx-auto">
         <div class="reveal">
             <div class="section-label">About Me</div>
-            <h2 class="text-3xl md:text-5xl font-semibold tracking-tight mb-12">
-                Crafting digital<br>
-                <span class="text-gray-500">experiences that matter</span>
-            </h2>
+            <h2 class="text-3xl md:text-5xl font-semibold tracking-tight mb-12">Crafting digital<br><span class="text-gray-500">experiences that matter</span></h2>
         </div>
-
         <div class="grid md:grid-cols-5 gap-12 items-start">
-            <!-- Photo -->
-            <div class="md:col-span-2 reveal" style="transition-delay: 0.1s;">
+            <div class="md:col-span-2 reveal" style="transition-delay:0.1s;">
                 <div class="relative">
                     <div class="absolute -inset-4 bg-gradient-to-br from-red-500/10 to-transparent rounded-2xl blur-2xl"></div>
                     <div class="relative overflow-hidden rounded-2xl border border-white/[0.08]">
-                        <img src="https://picsum.photos/seed/dev-portrait/500/600.jpg" alt="Portrait" class="w-full h-[350px] object-cover grayscale hover:grayscale-0 transition-all duration-700">
+                        <img src="https://picsum.photos/seed/dev-portrait-bm/500/600.jpg" alt="Portrait" class="w-full h-[350px] object-cover grayscale hover:grayscale-0 transition-all duration-700">
                     </div>
-                    <!-- Experience Badge -->
                     <div class="absolute -bottom-4 -right-4 glass-panel rounded-xl px-4 py-3 border border-red-500/20">
                         <div class="text-2xl font-bold text-red-500">3+</div>
                         <div class="text-[10px] text-gray-400 uppercase tracking-widest">Years Exp.</div>
                     </div>
                 </div>
             </div>
-
-            <!-- Text -->
-            <div class="md:col-span-3 reveal" style="transition-delay: 0.2s;">
-                <p class="text-gray-400 text-lg leading-relaxed mb-6">
-                    I am a passionate Full-Stack Web Developer with experience in building modern web layouts and robust backend systems. I specialize in creating performant, accessible, and visually compelling web applications.
-                </p>
-                <p class="text-gray-500 leading-relaxed mb-8">
-                    My approach combines clean code practices with creative design thinking. I believe that great software isn't just about functionality — it's about creating experiences that users love to interact with.
-                </p>
-
-                <!-- Quick Info -->
+            <div class="md:col-span-3 reveal" style="transition-delay:0.2s;">
+                <p class="text-gray-400 text-lg leading-relaxed mb-6">I am a passionate Full-Stack Web Developer with experience in building modern web layouts and robust backend systems. I specialize in creating performant, accessible, and visually compelling web applications.</p>
+                <p class="text-gray-500 leading-relaxed mb-8">My approach combines clean code practices with creative design thinking. I believe that great software isn't just about functionality — it's about creating experiences that users love to interact with.</p>
                 <div class="grid grid-cols-2 gap-4 mb-8">
-                    <div class="flex items-center gap-3">
-                        <iconify-icon icon="lucide:map-pin" class="text-red-500" width="16"></iconify-icon>
-                        <span class="text-sm text-gray-400">Debre Markos, Ethiopia</span>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <iconify-icon icon="lucide:briefcase" class="text-red-500" width="16"></iconify-icon>
-                        <span class="text-sm text-gray-400">Freelance / Remote</span>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <iconify-icon icon="lucide:graduation-cap" class="text-red-500" width="16"></iconify-icon>
-                        <span class="text-sm text-gray-400">B.Sc. Computer Science</span>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <iconify-icon icon="lucide:languages" class="text-red-500" width="16"></iconify-icon>
-                        <span class="text-sm text-gray-400">Amharic, English</span>
-                    </div>
+                    <div class="flex items-center gap-3"><iconify-icon icon="lucide:map-pin" class="text-red-500" width="16"></iconify-icon><span class="text-sm text-gray-400">Debre Markos, Ethiopia</span></div>
+                    <div class="flex items-center gap-3"><iconify-icon icon="lucide:briefcase" class="text-red-500" width="16"></iconify-icon><span class="text-sm text-gray-400">Freelance / Remote</span></div>
+                    <div class="flex items-center gap-3"><iconify-icon icon="lucide:graduation-cap" class="text-red-500" width="16"></iconify-icon><span class="text-sm text-gray-400">B.Sc. Computer Science</span></div>
+                    <div class="flex items-center gap-3"><iconify-icon icon="lucide:languages" class="text-red-500" width="16"></iconify-icon><span class="text-sm text-gray-400">Amharic, English</span></div>
                 </div>
-
-                <a href="#contact" class="magnetic-btn">
-                    <iconify-icon icon="lucide:download" width="16"></iconify-icon>
-                    Download CV
-                </a>
+                <a href="#contact" class="magnetic-btn"><iconify-icon icon="lucide:download" width="16"></iconify-icon> Download CV</a>
             </div>
         </div>
     </div>
@@ -548,109 +190,34 @@
 <!-- SKILLS                                  -->
 <!-- ════════════════════════════════════════ -->
 <section id="skills" class="relative py-24 md:py-32 px-6">
-    <!-- Background Glow -->
     <div class="absolute top-1/2 left-0 w-[400px] h-[400px] bg-red-500/5 rounded-full blur-[120px] pointer-events-none -translate-y-1/2"></div>
-
     <div class="max-w-5xl mx-auto relative z-10">
         <div class="reveal">
             <div class="section-label">Skills</div>
-            <h2 class="text-3xl md:text-5xl font-semibold tracking-tight mb-4">
-                Tech Stack &<br>
-                <span class="text-gray-500">Expertise</span>
-            </h2>
+            <h2 class="text-3xl md:text-5xl font-semibold tracking-tight mb-4">Tech Stack &<br><span class="text-gray-500">Expertise</span></h2>
             <p class="text-gray-500 max-w-xl mb-16">Technologies I use to bring ideas to life — from pixel-perfect frontends to scalable backend architectures.</p>
         </div>
-
-        <!-- Skill Categories -->
         <div class="grid md:grid-cols-2 gap-6">
-            <!-- Frontend -->
-            <div class="glass-panel rounded-2xl p-6 card-3d reveal" style="transition-delay: 0.1s;">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center">
-                        <iconify-icon icon="lucide:monitor" class="text-red-500" width="20"></iconify-icon>
-                    </div>
-                    <h3 class="text-lg font-medium">Frontend</h3>
-                </div>
-                <div class="space-y-4" id="frontend-skills">
-                    <div class="skill-item">
-                        <div class="flex justify-between mb-1.5">
-                            <span class="text-sm text-gray-300">HTML5 / CSS3</span>
-                            <span class="text-xs text-gray-500">95%</span>
-                        </div>
-                        <div class="skill-bar-track"><div class="skill-bar-fill" data-width="95%"></div></div>
-                    </div>
-                    <div class="skill-item">
-                        <div class="flex justify-between mb-1.5">
-                            <span class="text-sm text-gray-300">JavaScript (ES6+)</span>
-                            <span class="text-xs text-gray-500">90%</span>
-                        </div>
-                        <div class="skill-bar-track"><div class="skill-bar-fill" data-width="90%"></div></div>
-                    </div>
-                    <div class="skill-item">
-                        <div class="flex justify-between mb-1.5">
-                            <span class="text-sm text-gray-300">React.js / Next.js</span>
-                            <span class="text-xs text-gray-500">85%</span>
-                        </div>
-                        <div class="skill-bar-track"><div class="skill-bar-fill" data-width="85%"></div></div>
-                    </div>
-                    <div class="skill-item">
-                        <div class="flex justify-between mb-1.5">
-                            <span class="text-sm text-gray-300">Tailwind CSS</span>
-                            <span class="text-xs text-gray-500">92%</span>
-                        </div>
-                        <div class="skill-bar-track"><div class="skill-bar-fill" data-width="92%"></div></div>
-                    </div>
+            <div class="glass-panel rounded-2xl p-6 card-3d reveal" style="transition-delay:0.1s;">
+                <div class="flex items-center gap-3 mb-6"><div class="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center"><iconify-icon icon="lucide:monitor" class="text-red-500" width="20"></iconify-icon></div><h3 class="text-lg font-medium">Frontend</h3></div>
+                <div class="space-y-4">
+                    <div><div class="flex justify-between mb-1.5"><span class="text-sm text-gray-300">HTML5 / CSS3</span><span class="text-xs text-gray-500">95%</span></div><div class="skill-bar-track"><div class="skill-bar-fill" data-width="95%"></div></div></div>
+                    <div><div class="flex justify-between mb-1.5"><span class="text-sm text-gray-300">JavaScript (ES6+)</span><span class="text-xs text-gray-500">90%</span></div><div class="skill-bar-track"><div class="skill-bar-fill" data-width="90%"></div></div></div>
+                    <div><div class="flex justify-between mb-1.5"><span class="text-sm text-gray-300">React.js / Next.js</span><span class="text-xs text-gray-500">85%</span></div><div class="skill-bar-track"><div class="skill-bar-fill" data-width="85%"></div></div></div>
+                    <div><div class="flex justify-between mb-1.5"><span class="text-sm text-gray-300">Tailwind CSS</span><span class="text-xs text-gray-500">92%</span></div><div class="skill-bar-track"><div class="skill-bar-fill" data-width="92%"></div></div></div>
                 </div>
             </div>
-
-            <!-- Backend -->
-            <div class="glass-panel rounded-2xl p-6 card-3d reveal" style="transition-delay: 0.2s;">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center">
-                        <iconify-icon icon="lucide:server" class="text-red-500" width="20"></iconify-icon>
-                    </div>
-                    <h3 class="text-lg font-medium">Backend</h3>
-                </div>
-                <div class="space-y-4" id="backend-skills">
-                    <div class="skill-item">
-                        <div class="flex justify-between mb-1.5">
-                            <span class="text-sm text-gray-300">Node.js / Express</span>
-                            <span class="text-xs text-gray-500">88%</span>
-                        </div>
-                        <div class="skill-bar-track"><div class="skill-bar-fill" data-width="88%"></div></div>
-                    </div>
-                    <div class="skill-item">
-                        <div class="flex justify-between mb-1.5">
-                            <span class="text-sm text-gray-300">PHP / Laravel</span>
-                            <span class="text-xs text-gray-500">75%</span>
-                        </div>
-                        <div class="skill-bar-track"><div class="skill-bar-fill" data-width="75%"></div></div>
-                    </div>
-                    <div class="skill-item">
-                        <div class="flex justify-between mb-1.5">
-                            <span class="text-sm text-gray-300">MySQL / PostgreSQL</span>
-                            <span class="text-xs text-gray-500">82%</span>
-                        </div>
-                        <div class="skill-bar-track"><div class="skill-bar-fill" data-width="82%"></div></div>
-                    </div>
-                    <div class="skill-item">
-                        <div class="flex justify-between mb-1.5">
-                            <span class="text-sm text-gray-300">REST APIs </span>
-                            <span class="text-xs text-gray-500">80%</span>
-                        </div>
-                        <div class="skill-bar-track"><div class="skill-bar-fill" data-width="80%"></div></div>
-                    </div>
+            <div class="glass-panel rounded-2xl p-6 card-3d reveal" style="transition-delay:0.2s;">
+                <div class="flex items-center gap-3 mb-6"><div class="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center"><iconify-icon icon="lucide:server" class="text-red-500" width="20"></iconify-icon></div><h3 class="text-lg font-medium">Backend</h3></div>
+                <div class="space-y-4">
+                    <div><div class="flex justify-between mb-1.5"><span class="text-sm text-gray-300">Node.js / Express</span><span class="text-xs text-gray-500">88%</span></div><div class="skill-bar-track"><div class="skill-bar-fill" data-width="88%"></div></div></div>
+                    <div><div class="flex justify-between mb-1.5"><span class="text-sm text-gray-300">PHP / Laravel</span><span class="text-xs text-gray-500">75%</span></div><div class="skill-bar-track"><div class="skill-bar-fill" data-width="75%"></div></div></div>
+                    <div><div class="flex justify-between mb-1.5"><span class="text-sm text-gray-300">MySQL / PostgreSQL</span><span class="text-xs text-gray-500">82%</span></div><div class="skill-bar-track"><div class="skill-bar-fill" data-width="82%"></div></div></div>
+                    <div><div class="flex justify-between mb-1.5"><span class="text-sm text-gray-300">REST APIs</span><span class="text-xs text-gray-500">80%</span></div><div class="skill-bar-track"><div class="skill-bar-fill" data-width="80%"></div></div></div>
                 </div>
             </div>
-
-            <!-- Tools -->
-            <div class="glass-panel rounded-2xl p-6 card-3d reveal" style="transition-delay: 0.3s;">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center">
-                        <iconify-icon icon="lucide:wrench" class="text-red-500" width="20"></iconify-icon>
-                    </div>
-                    <h3 class="text-lg font-medium">Tools & DevOps</h3>
-                </div>
+            <div class="glass-panel rounded-2xl p-6 card-3d reveal" style="transition-delay:0.3s;">
+                <div class="flex items-center gap-3 mb-6"><div class="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center"><iconify-icon icon="lucide:wrench" class="text-red-500" width="20"></iconify-icon></div><h3 class="text-lg font-medium">Tools & DevOps</h3></div>
                 <div class="flex flex-wrap gap-2">
                     <span class="px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.06] text-xs text-gray-300 font-medium">Git & GitHub</span>
                     <span class="px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.06] text-xs text-gray-300 font-medium">Docker</span>
@@ -662,15 +229,8 @@
                     <span class="px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.06] text-xs text-gray-300 font-medium">Linux</span>
                 </div>
             </div>
-
-            <!-- Soft Skills -->
-            <div class="glass-panel rounded-2xl p-6 card-3d reveal" style="transition-delay: 0.4s;">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center">
-                        <iconify-icon icon="lucide:users" class="text-red-500" width="20"></iconify-icon>
-                    </div>
-                    <h3 class="text-lg font-medium">Soft Skills</h3>
-                </div>
+            <div class="glass-panel rounded-2xl p-6 card-3d reveal" style="transition-delay:0.4s;">
+                <div class="flex items-center gap-3 mb-6"><div class="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center"><iconify-icon icon="lucide:users" class="text-red-500" width="20"></iconify-icon></div><h3 class="text-lg font-medium">Soft Skills</h3></div>
                 <div class="flex flex-wrap gap-2">
                     <span class="px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.06] text-xs text-gray-300 font-medium">Team Leadership</span>
                     <span class="px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.06] text-xs text-gray-300 font-medium">Problem Solving</span>
@@ -691,53 +251,307 @@
     <div class="max-w-6xl mx-auto">
         <div class="reveal">
             <div class="section-label">Projects</div>
-            <h2 class="text-3xl md:text-5xl font-semibold tracking-tight mb-4">
-                Recent<br>
-                <span class="text-gray-500">Work & Projects</span>
-            </h2>
-            <p class="text-gray-500 max-w-xl mb-16">A selection of projects that showcase my skills and passion for building great products.</p>
+            <h2 class="text-3xl md:text-5xl font-semibold tracking-tight mb-4">Recent<br><span class="text-gray-500">Work & Projects</span></h2>
+            <p class="text-gray-500 max-w-xl mb-16">A selection of projects that showcase my skills and passion for building great products. Click any card to view the source code.</p>
         </div>
 
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-           
 
-            <!-- Project 1 -->
-            <div class="glass-panel rounded-2xl overflow-hidden card-3d reveal" style="transition-delay: 0.2s;">
+            <!-- ═══ Project 1: Attendance Management System ═══ -->
+            <a href="https://github.com/birtamaza/attendance-management-system" target="_blank" rel="noopener noreferrer" class="glass-panel rounded-2xl overflow-hidden card-3d project-card-link reveal" style="transition-delay:0.1s;">
                 <div class="project-img-wrap">
-                    <img src="https://picsum.photos/seed/task-manager-app/600/400.jpg" alt="Task Management App">
+                    <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="600" height="400" fill="#0a0a0a"/>
+                        <!-- Sidebar -->
+                        <rect width="115" height="400" fill="#0f0f0f"/>
+                        <rect x="12" y="18" width="22" height="22" rx="5" fill="#ef4444"/>
+                        <text x="23" y="34" fill="#fff" font-size="11" font-weight="bold" text-anchor="middle" font-family="sans-serif">A</text>
+                        <text x="44" y="34" fill="#777" font-size="8.5" font-family="sans-serif">AMS</text>
+                        <rect x="8" y="60" width="99" height="26" rx="5" fill="rgba(239,68,68,0.1)"/>
+                        <text x="22" y="77" fill="#ef4444" font-size="8" font-family="sans-serif">▣ Dashboard</text>
+                        <text x="22" y="103" fill="#555" font-size="8" font-family="sans-serif">◎ Students</text>
+                        <text x="22" y="129" fill="#555" font-size="8" font-family="sans-serif">✓ Attendance</text>
+                        <text x="22" y="155" fill="#555" font-size="8" font-family="sans-serif">▦ Reports</text>
+                        <text x="22" y="181" fill="#555" font-size="8" font-family="sans-serif">⚙ Settings</text>
+                        <!-- Topbar -->
+                        <rect x="115" y="0" width="485" height="40" fill="#0f0f0f"/>
+                        <rect x="130" y="10" width="180" height="20" rx="4" fill="#161616"/>
+                        <text x="142" y="24" fill="#444" font-size="7" font-family="sans-serif">Search students...</text>
+                        <circle cx="555" cy="20" r="12" fill="#222"/>
+                        <text x="555" y="24" fill="#888" font-size="8" text-anchor="middle" font-family="sans-serif">B</text>
+                        <!-- Stat Cards -->
+                        <rect x="128" y="50" width="108" height="58" rx="7" fill="#121212" stroke="#1e1e1e" stroke-width="0.5"/>
+                        <text x="140" y="68" fill="#666" font-size="6.5" font-family="sans-serif">Total Students</text>
+                        <text x="140" y="93" fill="#fff" font-size="18" font-weight="bold" font-family="sans-serif">245</text>
+                        <rect x="244" y="50" width="108" height="58" rx="7" fill="#121212" stroke="#1e1e1e" stroke-width="0.5"/>
+                        <text x="256" y="68" fill="#666" font-size="6.5" font-family="sans-serif">Present</text>
+                        <text x="256" y="93" fill="#22c55e" font-size="18" font-weight="bold" font-family="sans-serif">198</text>
+                        <rect x="360" y="50" width="108" height="58" rx="7" fill="#121212" stroke="#1e1e1e" stroke-width="0.5"/>
+                        <text x="372" y="68" fill="#666" font-size="6.5" font-family="sans-serif">Absent</text>
+                        <text x="372" y="93" fill="#ef4444" font-size="18" font-weight="bold" font-family="sans-serif">32</text>
+                        <rect x="476" y="50" width="108" height="58" rx="7" fill="#121212" stroke="#1e1e1e" stroke-width="0.5"/>
+                        <text x="488" y="68" fill="#666" font-size="6.5" font-family="sans-serif">Late</text>
+                        <text x="488" y="93" fill="#f59e0b" font-size="18" font-weight="bold" font-family="sans-serif">15</text>
+                        <!-- Table Header -->
+                        <text x="133" y="133" fill="#ccc" font-size="9" font-weight="600" font-family="sans-serif">Today's Attendance</text>
+                        <rect x="128" y="140" width="456" height="22" rx="4" fill="#121212"/>
+                        <text x="143" y="155" fill="#555" font-size="6.5" font-family="sans-serif">Student Name</text>
+                        <text x="280" y="155" fill="#555" font-size="6.5" font-family="sans-serif">Department</text>
+                        <text x="378" y="155" fill="#555" font-size="6.5" font-family="sans-serif">Check In</text>
+                        <text x="450" y="155" fill="#555" font-size="6.5" font-family="sans-serif">Check Out</text>
+                        <text x="530" y="155" fill="#555" font-size="6.5" font-family="sans-serif">Status</text>
+                        <!-- Row 1 -->
+                        <text x="143" y="178" fill="#ddd" font-size="7.5" font-family="sans-serif">Abebe Kebede</text>
+                        <text x="280" y="178" fill="#777" font-size="7.5" font-family="sans-serif">Computer Science</text>
+                        <text x="378" y="178" fill="#777" font-size="7.5" font-family="sans-serif">08:02 AM</text>
+                        <text x="450" y="178" fill="#777" font-size="7.5" font-family="sans-serif">05:15 PM</text>
+                        <rect x="525" y="168" width="50" height="16" rx="8" fill="rgba(34,197,94,0.12)"/>
+                        <text x="550" y="179" fill="#22c55e" font-size="6.5" text-anchor="middle" font-family="sans-serif">Present</text>
+                        <!-- Row 2 -->
+                        <text x="143" y="203" fill="#ddd" font-size="7.5" font-family="sans-serif">Helen Tadesse</text>
+                        <text x="280" y="203" fill="#777" font-size="7.5" font-family="sans-serif">Information Sys.</text>
+                        <text x="378" y="203" fill="#777" font-size="7.5" font-family="sans-serif">08:35 AM</text>
+                        <text x="450" y="203" fill="#777" font-size="7.5" font-family="sans-serif">—</text>
+                        <rect x="525" y="193" width="50" height="16" rx="8" fill="rgba(245,158,11,0.12)"/>
+                        <text x="550" y="204" fill="#f59e0b" font-size="6.5" text-anchor="middle" font-family="sans-serif">Late</text>
+                        <!-- Row 3 -->
+                        <text x="143" y="228" fill="#ddd" font-size="7.5" font-family="sans-serif">Yonas Girma</text>
+                        <text x="280" y="228" fill="#777" font-size="7.5" font-family="sans-serif">Software Eng.</text>
+                        <text x="378" y="228" fill="#777" font-size="7.5" font-family="sans-serif">—</text>
+                        <text x="450" y="228" fill="#777" font-size="7.5" font-family="sans-serif">—</text>
+                        <rect x="525" y="218" width="50" height="16" rx="8" fill="rgba(239,68,68,0.12)"/>
+                        <text x="550" y="229" fill="#ef4444" font-size="6.5" text-anchor="middle" font-family="sans-serif">Absent</text>
+                        <!-- Row 4 -->
+                        <text x="143" y="253" fill="#ddd" font-size="7.5" font-family="sans-serif">Sara Hailu</text>
+                        <text x="280" y="253" fill="#777" font-size="7.5" font-family="sans-serif">Computer Science</text>
+                        <text x="378" y="253" fill="#777" font-size="7.5" font-family="sans-serif">07:58 AM</text>
+                        <text x="450" y="253" fill="#777" font-size="7.5" font-family="sans-serif">05:00 PM</text>
+                        <rect x="525" y="243" width="50" height="16" rx="8" fill="rgba(34,197,94,0.12)"/>
+                        <text x="550" y="254" fill="#22c55e" font-size="6.5" text-anchor="middle" font-family="sans-serif">Present</text>
+                        <!-- Weekly Chart -->
+                        <text x="133" y="295" fill="#ccc" font-size="9" font-weight="600" font-family="sans-serif">Weekly Overview</text>
+                        <rect x="128" y="302" width="220" height="80" rx="6" fill="#121212"/>
+                        <rect x="148" y="350" width="18" height="24" rx="2" fill="rgba(34,197,94,0.5)"/>
+                        <rect x="173" y="355" width="18" height="19" rx="2" fill="rgba(34,197,94,0.5)"/>
+                        <rect x="198" y="342" width="18" height="32" rx="2" fill="rgba(34,197,94,0.5)"/>
+                        <rect x="223" y="348" width="18" height="26" rx="2" fill="rgba(34,197,94,0.5)"/>
+                        <rect x="248" y="338" width="18" height="36" rx="2" fill="rgba(34,197,94,0.7)"/>
+                        <rect x="273" y="345" width="18" height="29" rx="2" fill="rgba(34,197,94,0.5)"/>
+                        <rect x="298" y="352" width="18" height="22" rx="2" fill="rgba(34,197,94,0.3)"/>
+                        <text x="157" y="382" fill="#444" font-size="6" text-anchor="middle" font-family="sans-serif">Mon</text>
+                        <text x="182" y="382" fill="#444" font-size="6" text-anchor="middle" font-family="sans-serif">Tue</text>
+                        <text x="207" y="382" fill="#444" font-size="6" text-anchor="middle" font-family="sans-serif">Wed</text>
+                        <text x="232" y="382" fill="#444" font-size="6" text-anchor="middle" font-family="sans-serif">Thu</text>
+                        <text x="257" y="382" fill="#444" font-size="6" text-anchor="middle" font-family="sans-serif">Fri</text>
+                        <text x="282" y="382" fill="#444" font-size="6" text-anchor="middle" font-family="sans-serif">Sat</text>
+                        <text x="307" y="382" fill="#444" font-size="6" text-anchor="middle" font-family="sans-serif">Sun</text>
+                        <!-- QR Code -->
+                        <text x="370" y="295" fill="#ccc" font-size="9" font-weight="600" font-family="sans-serif">QR Check-In</text>
+                        <rect x="362" y="302" width="75" height="80" rx="5" fill="#121212" stroke="#1e1e1e" stroke-width="0.5"/>
+                        <rect x="370" y="310" width="10" height="10" fill="#666"/><rect x="384" y="310" width="4" height="4" fill="#666"/><rect x="392" y="310" width="10" height="10" fill="#666"/>
+                        <rect x="370" y="324" width="4" height="4" fill="#666"/><rect x="378" y="324" width="4" height="4" fill="#444"/><rect x="390" y="324" width="4" height="4" fill="#666"/>
+                        <rect x="370" y="338" width="10" height="10" fill="#666"/><rect x="384" y="338" width="4" height="4" fill="#666"/><rect x="392" y="338" width="10" height="10" fill="#666"/>
+                        <text x="455" y="325" fill="#555" font-size="7" font-family="sans-serif">Scan QR code</text>
+                        <text x="455" y="338" fill="#555" font-size="7" font-family="sans-serif">to mark your</text>
+                        <text x="455" y="351" fill="#555" font-size="7" font-family="sans-serif">attendance</text>
+                        <text x="455" y="368" fill="#ef4444" font-size="7" font-weight="600" font-family="sans-serif">→ Open Scanner</text>
+                    </svg>
                 </div>
                 <div class="p-6">
-                    <div class="flex items-center gap-2 mb-3">
-                        <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                        <span class="text-[10px] text-gray-500 uppercase tracking-widest">Live</span>
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500"></span><span class="text-[10px] text-gray-500 uppercase tracking-widest">Live</span></div>
+                        <iconify-icon icon="lucide:arrow-up-right" class="text-gray-600" width="16"></iconify-icon>
+                    </div>
+                    <h3 class="text-lg font-medium mb-2">Attendance Management System</h3>
+                    <p class="text-sm text-gray-500 mb-4">Track student/employee attendance with QR code check-in, real-time dashboards, report generation, and role-based access control.</p>
+                    <div class="flex flex-wrap gap-1.5 mb-5">
+                        <span class="px-2 py-0.5 rounded bg-red-500/10 text-[10px] text-red-400 font-medium">React</span>
+                        <span class="px-2 py-0.5 rounded bg-red-500/10 text-[10px] text-red-400 font-medium">Node.js</span>
+                        <span class="px-2 py-0.5 rounded bg-red-500/10 text-[10px] text-red-400 font-medium">MySQL</span>
+                        <span class="px-2 py-0.5 rounded bg-red-500/10 text-[10px] text-red-400 font-medium">QR Code</span>
+                        <span class="px-2 py-0.5 rounded bg-red-500/10 text-[10px] text-red-400 font-medium">JWT Auth</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs text-gray-600"><iconify-icon icon="lucide:github" width="14"></iconify-icon><span>View Repository →</span></div>
+                </div>
+            </a>
+
+            <!-- ═══ Project 2: Task Management App ═══ -->
+            <a href="https://github.com/birtamaza/task-management-app" target="_blank" rel="noopener noreferrer" class="glass-panel rounded-2xl overflow-hidden card-3d project-card-link reveal" style="transition-delay:0.2s;">
+                <div class="project-img-wrap">
+                    <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="600" height="400" fill="#0a0a0a"/>
+                        <!-- Top bar -->
+                        <rect width="600" height="42" fill="#0f0f0f"/>
+                        <text x="20" y="27" fill="#fff" font-size="11" font-weight="600" font-family="sans-serif">◎ Task Board</text>
+                        <rect x="140" y="12" width="120" height="18" rx="9" fill="rgba(239,68,68,0.15)"/>
+                        <text x="158" y="25" fill="#ef4444" font-size="7.5" font-family="sans-serif">● All Tasks</text>
+                        <rect x="268" y="12" width="80" height="18" rx="9" fill="#161616"/>
+                        <text x="286" y="25" fill="#666" font-size="7.5" font-family="sans-serif">In Progress</text>
+                        <rect x="420" y="12" width="22" height="18" rx="4" fill="#161616"/>
+                        <text x="431" y="25" fill="#666" font-size="9" text-anchor="middle" font-family="sans-serif">⊕</text>
+                        <circle cx="565" cy="21" r="12" fill="#222"/><text x="565" y="25" fill="#888" font-size="8" text-anchor="middle" font-family="sans-serif">B</text>
+                        <!-- Column: To Do -->
+                        <text x="20" y="70" fill="#888" font-size="8" font-weight="600" font-family="sans-serif">TO DO</text>
+                        <rect x="43" y="62" width="16" height="14" rx="7" fill="#1e1e1e"/><text x="51" y="73" fill="#555" font-size="7" text-anchor="middle" font-family="sans-serif">3</text>
+                        <!-- Card 1 -->
+                        <rect x="15" y="82" width="170" height="90" rx="8" fill="#121212" stroke="#1e1e1e" stroke-width="0.5"/>
+                        <rect x="15" y="82" width="3" height="90" rx="1.5" fill="#3b82f6"/>
+                        <text x="30" y="100" fill="#ddd" font-size="8" font-weight="600" font-family="sans-serif">Design login page</text>
+                        <text x="30" y="114" fill="#666" font-size="6.5" font-family="sans-serif">Create responsive login</text>
+                        <text x="30" y="125" fill="#666" font-size="6.5" font-family="sans-serif">with social auth options</text>
+                        <rect x="30" y="135" width="36" height="14" rx="7" fill="rgba(59,130,246,0.12)"/><text x="48" y="145" fill="#3b82f6" font-size="6" text-anchor="middle" font-family="sans-serif">Design</text>
+                        <rect x="70" y="135" width="38" height="14" rx="7" fill="rgba(168,85,247,0.12)"/><text x="89" y="145" fill="#a855f7" font-size="6" text-anchor="middle" font-family="sans-serif">UI/UX</text>
+                        <circle cx="165" cy="158" r="8" fill="#333"/><text x="165" y="162" fill="#888" font-size="6" text-anchor="middle" font-family="sans-serif">H</text>
+                        <!-- Card 2 -->
+                        <rect x="15" y="182" width="170" height="80" rx="8" fill="#121212" stroke="#1e1e1e" stroke-width="0.5"/>
+                        <rect x="15" y="182" width="3" height="80" rx="1.5" fill="#f59e0b"/>
+                        <text x="30" y="200" fill="#ddd" font-size="8" font-weight="600" font-family="sans-serif">Setup CI/CD pipeline</text>
+                        <text x="30" y="214" fill="#666" font-size="6.5" font-family="sans-serif">Configure GitHub Actions</text>
+                        <text x="30" y="225" fill="#666" font-size="6.5" font-family="sans-serif">for auto deployment</text>
+                        <rect x="30" y="235" width="30" height="14" rx="7" fill="rgba(245,158,11,0.12)"/><text x="45" y="245" fill="#f59e0b" font-size="6" text-anchor="middle" font-family="sans-serif">DevOps</text>
+                        <circle cx="165" cy="248" r="8" fill="#333"/><text x="165" y="252" fill="#888" font-size="6" text-anchor="middle" font-family="sans-serif">Y</text>
+                        <!-- Card 3 -->
+                        <rect x="15" y="272" width="170" height="70" rx="8" fill="#121212" stroke="#1e1e1e" stroke-width="0.5"/>
+                        <rect x="15" y="272" width="3" height="70" rx="1.5" fill="#ef4444"/>
+                        <text x="30" y="290" fill="#ddd" font-size="8" font-weight="600" font-family="sans-serif">Fix nav responsive bug</text>
+                        <text x="30" y="304" fill="#666" font-size="6.5" font-family="sans-serif">Hamburger menu not closing</text>
+                        <rect x="30" y="315" width="26" height="14" rx="7" fill="rgba(239,68,68,0.12)"/><text x="43" y="325" fill="#ef4444" font-size="6" text-anchor="middle" font-family="sans-serif">Bug</text>
+                        <circle cx="165" cy="328" r="8" fill="#333"/><text x="165" y="332" fill="#888" font-size="6" text-anchor="middle" font-family="sans-serif">S</text>
+
+                        <!-- Column: In Progress -->
+                        <text x="210" y="70" fill="#888" font-size="8" font-weight="600" font-family="sans-serif">IN PROGRESS</text>
+                        <rect x="293" y="62" width="16" height="14" rx="7" fill="#1e1e1e"/><text x="301" y="73" fill="#555" font-size="7" text-anchor="middle" font-family="sans-serif">2</text>
+                        <!-- Card 4 -->
+                        <rect x="205" y="82" width="170" height="100" rx="8" fill="#121212" stroke="#1e1e1e" stroke-width="0.5"/>
+                        <rect x="205" y="82" width="3" height="100" rx="1.5" fill="#22c55e"/>
+                        <text x="220" y="100" fill="#ddd" font-size="8" font-weight="600" font-family="sans-serif">Build REST API</text>
+                        <text x="220" y="114" fill="#666" font-size="6.5" font-family="sans-serif">CRUD endpoints for</text>
+                        <text x="220" y="125" fill="#666" font-size="6.5" font-family="sans-serif">users and projects</text>
+                        <rect x="220" y="135" width="44" height="14" rx="7" fill="rgba(34,197,94,0.12)"/><text x="242" y="145" fill="#22c55e" font-size="6" text-anchor="middle" font-family="sans-serif">Backend</text>
+                        <rect x="270" y="135" width="40" height="14" rx="7" fill="rgba(59,130,246,0.12)"/><text x="290" y="145" fill="#3b82f6" font-size="6" text-anchor="middle" font-family="sans-serif">API</text>
+                        <!-- Progress bar -->
+                        <rect x="220" y="157" width="140" height="4" rx="2" fill="#1e1e1e"/>
+                        <rect x="220" y="157" width="95" height="4" rx="2" fill="#22c55e"/>
+                        <text x="220" y="172" fill="#555" font-size="6" font-family="sans-serif">68% complete</text>
+                        <circle cx="355" cy="168" r="8" fill="#333"/><text x="355" y="172" fill="#888" font-size="6" text-anchor="middle" font-family="sans-serif">A</text>
+                        <!-- Card 5 -->
+                        <rect x="205" y="196" width="170" height="80" rx="8" fill="#121212" stroke="#1e1e1e" stroke-width="0.5"/>
+                        <rect x="205" y="196" width="3" height="80" rx="1.5" fill="#a855f7"/>
+                        <text x="220" y="214" fill="#ddd" font-size="8" font-weight="600" font-family="sans-serif">Database schema design</text>
+                        <text x="220" y="228" fill="#666" font-size="6.5" font-family="sans-serif">Normalize tables and</text>
+                        <text x="220" y="239" fill="#666" font-size="6.5" font-family="sans-serif">set up relationships</text>
+                        <rect x="220" y="249" width="40" height="14" rx="7" fill="rgba(168,85,247,0.12)"/><text x="240" y="259" fill="#a855f7" font-size="6" text-anchor="middle" font-family="sans-serif">Database</text>
+                        <circle cx="355" cy="262" r="8" fill="#333"/><text x="355" y="266" fill="#888" font-size="6" text-anchor="middle" font-family="sans-serif">B</text>
+
+                        <!-- Column: Done -->
+                        <text x="400" y="70" fill="#888" font-size="8" font-weight="600" font-family="sans-serif">DONE</text>
+                        <rect x="438" y="62" width="16" height="14" rx="7" fill="#1e1e1e"/><text x="446" y="73" fill="#555" font-size="7" text-anchor="middle" font-family="sans-serif">2</text>
+                        <!-- Card 6 -->
+                        <rect x="395" y="82" width="185" height="75" rx="8" fill="#121212" stroke="#1e1e1e" stroke-width="0.5"/>
+                        <rect x="395" y="82" width="3" height="75" rx="1.5" fill="#555"/>
+                        <text x="410" y="100" fill="#777" font-size="8" font-weight="600" font-family="sans-serif" text-decoration="line-through">Project setup</text>
+                        <text x="410" y="114" fill="#444" font-size="6.5" font-family="sans-serif">Initialize repo, install</text>
+                        <text x="410" y="125" fill="#444" font-size="6.5" font-family="sans-serif">dependencies, linting</text>
+                        <text x="558" y="145" fill="#22c55e" font-size="12" text-anchor="middle" font-family="sans-serif">✓</text>
+                        <!-- Card 7 -->
+                        <rect x="395" y="170" width="185" height="75" rx="8" fill="#121212" stroke="#1e1e1e" stroke-width="0.5"/>
+                        <rect x="395" y="170" width="3" height="75" rx="1.5" fill="#555"/>
+                        <text x="410" y="188" fill="#777" font-size="8" font-weight="600" font-family="sans-serif" text-decoration="line-through">Wireframes</text>
+                        <text x="410" y="202" fill="#444" font-size="6.5" font-family="sans-serif">Low-fidelity wireframes</text>
+                        <text x="410" y="213" fill="#444" font-size="6.5" font-family="sans-serif">for all main pages</text>
+                        <text x="558" y="233" fill="#22c55e" font-size="12" text-anchor="middle" font-family="sans-serif">✓</text>
+                        <!-- Stats bar -->
+                        <rect x="15" y="360" width="565" height="30" rx="6" fill="#0f0f0f"/>
+                        <text x="30" y="379" fill="#555" font-size="7" font-family="sans-serif">Total: 7 tasks</text>
+                        <text x="150" y="379" fill="#22c55e" font-size="7" font-family="sans-serif">● Done: 2</text>
+                        <text x="260" y="379" fill="#3b82f6" font-size="7" font-family="sans-serif">● In Progress: 2</text>
+                        <text x="400" y="379" fill="#888" font-size="7" font-family="sans-serif">● To Do: 3</text>
+                    </svg>
+                </div>
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500"></span><span class="text-[10px] text-gray-500 uppercase tracking-widest">Live</span></div>
+                        <iconify-icon icon="lucide:arrow-up-right" class="text-gray-600" width="16"></iconify-icon>
                     </div>
                     <h3 class="text-lg font-medium mb-2">Task Management App</h3>
-                    <p class="text-sm text-gray-500 mb-4">A productivity tool that helps teams track tasks, deadlines, and project progress in real-time with drag-and-drop.</p>
+                    <p class="text-sm text-gray-500 mb-4">A productivity tool with kanban board, drag-and-drop, real-time collaboration, and progress tracking for teams.</p>
                     <div class="flex flex-wrap gap-1.5 mb-5">
                         <span class="px-2 py-0.5 rounded bg-red-500/10 text-[10px] text-red-400 font-medium">JavaScript</span>
                         <span class="px-2 py-0.5 rounded bg-red-500/10 text-[10px] text-red-400 font-medium">Firebase</span>
                         <span class="px-2 py-0.5 rounded bg-red-500/10 text-[10px] text-red-400 font-medium">CSS Grid</span>
                     </div>
-                    <div class="flex items-center gap-4">
-                        <a href="#" class="flex items-center gap-1.5 text-sm text-gray-400 hover:text-red-500 transition-colors">
-                            <iconify-icon icon="lucide:external-link" width="14"></iconify-icon> Demo
-                        </a>
-                        <a href="#" class="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors">
-                            <iconify-icon icon="lucide:github" width="14"></iconify-icon> Code
-                        </a>
-                    </div>
+                    <div class="flex items-center gap-2 text-xs text-gray-600"><iconify-icon icon="lucide:github" width="14"></iconify-icon><span>View Repository →</span></div>
                 </div>
-            </div>
+            </a>
 
-            <!-- Project 3 -->
-            <div class="glass-panel rounded-2xl overflow-hidden card-3d reveal" style="transition-delay: 0.3s;">
+            <!-- ═══ Project 3: Weather Dashboard ═══ -->
+            <a href="https://github.com/birtamaza/weather-dashboard" target="_blank" rel="noopener noreferrer" class="glass-panel rounded-2xl overflow-hidden card-3d project-card-link reveal" style="transition-delay:0.3s;">
                 <div class="project-img-wrap">
-                    <img src="https://picsum.photos/seed/weather-dash/600/400.jpg" alt="Weather Dashboard">
+                    <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="600" height="400" fill="#0a0a0a"/>
+                        <!-- Subtle gradient sky -->
+                        <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0f172a"/><stop offset="100%" stop-color="#0a0a0a"/></linearGradient></defs>
+                        <rect width="600" height="400" fill="url(#sky)"/>
+                        <!-- Top bar -->
+                        <rect width="600" height="38" fill="rgba(15,15,15,0.8)"/>
+                        <text x="20" y="25" fill="#888" font-size="8" font-family="sans-serif">☰</text>
+                        <text x="300" y="25" fill="#ccc" font-size="9" font-weight="500" text-anchor="middle" font-family="sans-serif">Weather Dashboard</text>
+                        <rect x="500" y="10" width="80" height="18" rx="9" fill="#161616"/>
+                        <text x="540" y="23" fill="#888" font-size="7" text-anchor="middle" font-family="sans-serif">🔍 Search</text>
+                        <!-- Main Weather -->
+                        <text x="300" y="80" fill="#fff" font-size="14" font-weight="500" text-anchor="middle" font-family="sans-serif">Addis Ababa, Ethiopia</text>
+                        <text x="300" y="100" fill="#555" font-size="8" text-anchor="middle" font-family="sans-serif">Monday, Jan 26 2026</text>
+                        <!-- Sun icon -->
+                        <circle cx="300" cy="165" r="30" fill="none" stroke="#fbbf24" stroke-width="2" opacity="0.6"/>
+                        <circle cx="300" cy="165" r="22" fill="#fbbf24" opacity="0.2"/>
+                        <circle cx="300" cy="165" r="16" fill="#fbbf24" opacity="0.5"/>
+                        <!-- Cloud -->
+                        <ellipse cx="330" cy="170" rx="28" ry="14" fill="#1e293b" opacity="0.8"/>
+                        <ellipse cx="315" cy="162" rx="20" ry="12" fill="#1e293b" opacity="0.9"/>
+                        <ellipse cx="345" cy="165" rx="18" ry="10" fill="#1e293b" opacity="0.7"/>
+                        <!-- Temperature -->
+                        <text x="300" y="220" fill="#fff" font-size="48" font-weight="300" text-anchor="middle" font-family="sans-serif">24°</text>
+                        <text x="300" y="242" fill="#888" font-size="10" text-anchor="middle" font-family="sans-serif">Partly Cloudy</text>
+                        <!-- Detail cards row -->
+                        <rect x="30" y="262" width="125" height="55" rx="8" fill="#121212" stroke="#1e1e1e" stroke-width="0.5"/>
+                        <text x="45" y="282" fill="#555" font-size="7" font-family="sans-serif">Humidity</text>
+                        <text x="45" y="303" fill="#fff" font-size="16" font-weight="600" font-family="sans-serif">62%</text>
+                        <text x="100" y="303" fill="#3b82f6" font-size="7" font-family="sans-serif">💧</text>
+                        <rect x="168" y="262" width="125" height="55" rx="8" fill="#121212" stroke="#1e1e1e" stroke-width="0.5"/>
+                        <text x="183" y="282" fill="#555" font-size="7" font-family="sans-serif">Wind Speed</text>
+                        <text x="183" y="303" fill="#fff" font-size="16" font-weight="600" font-family="sans-serif">14 km/h</text>
+                        <text x="265" y="303" fill="#3b82f6" font-size="7" font-family="sans-serif">💨</text>
+                        <rect x="306" y="262" width="125" height="55" rx="8" fill="#121212" stroke="#1e1e1e" stroke-width="0.5"/>
+                        <text x="321" y="282" fill="#555" font-size="7" font-family="sans-serif">UV Index</text>
+                        <text x="321" y="303" fill="#fff" font-size="16" font-weight="600" font-family="sans-serif">5</text>
+                        <text x="345" y="303" fill="#f59e0b" font-size="8" font-family="sans-serif">Moderate</text>
+                        <rect x="444" y="262" width="125" height="55" rx="8" fill="#121212" stroke="#1e1e1e" stroke-width="0.5"/>
+                        <text x="459" y="282" fill="#555" font-size="7" font-family="sans-serif">Pressure</text>
+                        <text x="459" y="303" fill="#fff" font-size="16" font-weight="600" font-family="sans-serif">1013 hPa</text>
+                        <!-- 5-Day Forecast -->
+                        <text x="30" y="345" fill="#888" font-size="8" font-weight="600" font-family="sans-serif">5-DAY FORECAST</text>
+                        <rect x="30" y="355" width="540" height="35" rx="8" fill="#121212"/>
+                        <!-- Day 1 -->
+                        <text x="65" y="377" fill="#ccc" font-size="7.5" text-anchor="middle" font-family="sans-serif">Tue</text>
+                        <circle cx="115" cy="372" r="6" fill="#fbbf24" opacity="0.4"/>
+                        <text x="160" y="377" fill="#aaa" font-size="8" text-anchor="middle" font-family="sans-serif">26° / 15°</text>
+                        <!-- Day 2 -->
+                        <text x="215" y="377" fill="#ccc" font-size="7.5" text-anchor="middle" font-family="sans-serif">Wed</text>
+                        <ellipse cx="262" cy="373" rx="8" ry="5" fill="#475569" opacity="0.6"/>
+                        <text x="308" y="377" fill="#aaa" font-size="8" text-anchor="middle" font-family="sans-serif">22° / 13°</text>
+                        <!-- Day 3 -->
+                        <text x="362" y="377" fill="#ccc" font-size="7.5" text-anchor="middle" font-family="sans-serif">Thu</text>
+                        <circle cx="410" cy="372" r="6" fill="#fbbf24" opacity="0.4"/>
+                        <text x="455" y="377" fill="#aaa" font-size="8" text-anchor="middle" font-family="sans-serif">28° / 16°</text>
+                        <!-- Day 4 -->
+                        <text x="500" y="377" fill="#ccc" font-size="7.5" text-anchor="middle" font-family="sans-serif">Fri</text>
+                        <ellipse cx="540" cy="373" rx="8" ry="5" fill="#475569" opacity="0.6"/>
+                    </svg>
                 </div>
                 <div class="p-6">
-                    <div class="flex items-center gap-2 mb-3">
-                        <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
-                        <span class="text-[10px] text-gray-500 uppercase tracking-widest">In Progress</span>
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-yellow-500"></span><span class="text-[10px] text-gray-500 uppercase tracking-widest">In Progress</span></div>
+                        <iconify-icon icon="lucide:arrow-up-right" class="text-gray-600" width="16"></iconify-icon>
                     </div>
                     <h3 class="text-lg font-medium mb-2">Weather Dashboard</h3>
                     <p class="text-sm text-gray-500 mb-4">A beautiful weather app with real-time data, 7-day forecasts, location search, and animated weather icons.</p>
@@ -746,16 +560,10 @@
                         <span class="px-2 py-0.5 rounded bg-red-500/10 text-[10px] text-red-400 font-medium">TypeScript</span>
                         <span class="px-2 py-0.5 rounded bg-red-500/10 text-[10px] text-red-400 font-medium">OpenWeather API</span>
                     </div>
-                    <div class="flex items-center gap-4">
-                        <a href="#" class="flex items-center gap-1.5 text-sm text-gray-400 hover:text-red-500 transition-colors">
-                            <iconify-icon icon="lucide:external-link" width="14"></iconify-icon> Demo
-                        </a>
-                        <a href="#" class="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors">
-                            <iconify-icon icon="lucide:github" width="14"></iconify-icon> Code
-                        </a>
-                    </div>
+                    <div class="flex items-center gap-2 text-xs text-gray-600"><iconify-icon icon="lucide:github" width="14"></iconify-icon><span>View Repository →</span></div>
                 </div>
-            </div>
+            </a>
+
         </div>
     </div>
 </section>
@@ -768,31 +576,39 @@
     <div class="max-w-3xl mx-auto relative z-10">
         <div class="text-center reveal">
             <div class="section-label justify-center">Contact</div>
-            <h2 class="text-3xl md:text-5xl font-semibold tracking-tight mb-4">
-                Let's work<br>
-                <span class="text-gray-500">together</span>
-            </h2>
+            <h2 class="text-3xl md:text-5xl font-semibold tracking-tight mb-4">Let's work<br><span class="text-gray-500">together</span></h2>
             <p class="text-gray-500 max-w-md mx-auto mb-12">Have a project in mind? I'd love to hear about it. Send me a message and let's create something amazing.</p>
         </div>
-
-        
-        <!-- Social Links -->
-        <div class="flex items-center justify-center gap-4 mt-10 reveal" style="transition-delay: 0.2s;">
-            <a href="mailto:your.email@example.com" class="w-12 h-12 rounded-xl glass-panel flex items-center justify-center text-gray-400 hover:text-red-500 hover:border-red-500/30 transition-all duration-300" title="Email">
-                <iconify-icon icon="lucide:mail" width="20"></iconify-icon>
-            </a>
-            <a href="https://github.com/birtamaza" target="_blank" class="w-12 h-12 rounded-xl glass-panel flex items-center justify-center text-gray-400 hover:text-red-500 hover:border-red-500/30 transition-all duration-300" title="GitHub">
-                <iconify-icon icon="lucide:github" width="20"></iconify-icon>
-            </a>
-            <a href="#" target="_blank" class="w-12 h-12 rounded-xl glass-panel flex items-center justify-center text-gray-400 hover:text-red-500 hover:border-red-500/30 transition-all duration-300" title="LinkedIn">
-                <iconify-icon icon="lucide:linkedin" width="20"></iconify-icon>
-            </a>
-            <a href="#" target="_blank" class="w-12 h-12 rounded-xl glass-panel flex items-center justify-center text-gray-400 hover:text-red-500 hover:border-red-500/30 transition-all duration-300" title="Twitter">
-                <iconify-icon icon="lucide:twitter" width="20"></iconify-icon>
-            </a>
-            <a href="https://t.me" target="_blank" class="w-12 h-12 rounded-xl glass-panel flex items-center justify-center text-gray-400 hover:text-red-500 hover:border-red-500/30 transition-all duration-300" title="Telegram">
-                <iconify-icon icon="lucide:send" width="20"></iconify-icon>
-            </a>
+        <form id="contact-form" class="glass-panel rounded-2xl p-6 md:p-8 reveal" style="transition-delay:0.1s;">
+            <div class="grid md:grid-cols-2 gap-5 mb-5">
+                <div>
+                    <label class="block text-xs text-gray-500 uppercase tracking-widest mb-2">Name</label>
+                    <input type="text" id="form-name" placeholder="John Doe" required class="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-red-500/50 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-500 uppercase tracking-widest mb-2">Email</label>
+                    <input type="email" id="form-email" placeholder="john@example.com" required class="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-red-500/50 transition-colors">
+                </div>
+            </div>
+            <div class="mb-5">
+                <label class="block text-xs text-gray-500 uppercase tracking-widest mb-2">Subject</label>
+                <input type="text" id="form-subject" placeholder="Project Inquiry" class="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-red-500/50 transition-colors">
+            </div>
+            <div class="mb-6">
+                <label class="block text-xs text-gray-500 uppercase tracking-widest mb-2">Message</label>
+                <textarea id="form-message" rows="5" placeholder="Tell me about your project..." required class="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-red-500/50 transition-colors resize-none"></textarea>
+            </div>
+            <button type="submit" class="magnetic-btn w-full justify-center" id="submit-btn">
+                <iconify-icon icon="lucide:send" width="16"></iconify-icon>
+                <span id="btn-text">Send Message</span>
+            </button>
+        </form>
+        <div class="flex items-center justify-center gap-4 mt-10 reveal" style="transition-delay:0.2s;">
+            <a href="mailto:your.email@example.com" class="w-12 h-12 rounded-xl glass-panel flex items-center justify-center text-gray-400 hover:text-red-500 hover:border-red-500/30 transition-all duration-300" title="Email"><iconify-icon icon="lucide:mail" width="20"></iconify-icon></a>
+            <a href="https://github.com/birtamaza" target="_blank" rel="noopener noreferrer" class="w-12 h-12 rounded-xl glass-panel flex items-center justify-center text-gray-400 hover:text-red-500 hover:border-red-500/30 transition-all duration-300" title="GitHub"><iconify-icon icon="lucide:github" width="20"></iconify-icon></a>
+            <a href="#" target="_blank" class="w-12 h-12 rounded-xl glass-panel flex items-center justify-center text-gray-400 hover:text-red-500 hover:border-red-500/30 transition-all duration-300" title="LinkedIn"><iconify-icon icon="lucide:linkedin" width="20"></iconify-icon></a>
+            <a href="#" target="_blank" class="w-12 h-12 rounded-xl glass-panel flex items-center justify-center text-gray-400 hover:text-red-500 hover:border-red-500/30 transition-all duration-300" title="Twitter"><iconify-icon icon="lucide:twitter" width="20"></iconify-icon></a>
+            <a href="https://t.me" target="_blank" class="w-12 h-12 rounded-xl glass-panel flex items-center justify-center text-gray-400 hover:text-red-500 hover:border-red-500/30 transition-all duration-300" title="Telegram"><iconify-icon icon="lucide:send" width="20"></iconify-icon></a>
         </div>
     </div>
 </section>
@@ -806,291 +622,70 @@
             <span class="w-6 h-6 rounded-md bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-[10px] font-bold">D</span>
             <span class="text-sm text-gray-500">© 2026 DevPortfolio. All rights reserved.</span>
         </div>
-        <div class="flex items-center gap-1 text-sm text-gray-600">
-            Built with
-            <iconify-icon icon="lucide:heart" class="text-red-500" width="14"></iconify-icon>
-            by Brtie G.
-        </div>
+        <div class="flex items-center gap-1 text-sm text-gray-600">Built with <iconify-icon icon="lucide:heart" class="text-red-500" width="14"></iconify-icon> by Brtie M.</div>
     </div>
 </footer>
 
-<!-- Toast Container -->
 <div id="toast" class="toast"></div>
 
 <!-- ════════════════════════════════════════ -->
 <!-- JAVASCRIPT                              -->
 <!-- ════════════════════════════════════════ -->
 <script>
-// ── Particle Canvas ──
-(function() {
-    const canvas = document.getElementById('particle-canvas');
-    const ctx = canvas.getContext('2d');
-    let particles = [];
-    let mouse = { x: null, y: null, radius: 120 };
-
-    function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+(function(){
+    const canvas=document.getElementById('particle-canvas'),ctx=canvas.getContext('2d');
+    let particles=[],mouse={x:null,y:null,radius:120};
+    function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+    resize();window.addEventListener('resize',resize);
+    window.addEventListener('mousemove',function(e){mouse.x=e.x;mouse.y=e.y;});
+    window.addEventListener('mouseout',function(){mouse.x=null;mouse.y=null;});
+    class Particle{
+        constructor(){this.x=Math.random()*canvas.width;this.y=Math.random()*canvas.height;this.size=Math.random()*1.5+0.5;this.speedX=(Math.random()-0.5)*0.3;this.speedY=(Math.random()-0.5)*0.3;this.opacity=Math.random()*0.4+0.1;}
+        update(){this.x+=this.speedX;this.y+=this.speedY;if(this.x<0||this.x>canvas.width)this.speedX*=-1;if(this.y<0||this.y>canvas.height)this.speedY*=-1;if(mouse.x!==null){const dx=this.x-mouse.x,dy=this.y-mouse.y,dist=Math.sqrt(dx*dx+dy*dy);if(dist<mouse.radius){const f=(mouse.radius-dist)/mouse.radius;this.x+=dx*f*0.02;this.y+=dy*f*0.02;}}}
+        draw(){ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2);ctx.fillStyle=`rgba(239,68,68,${this.opacity})`;ctx.fill();}
     }
-    resize();
-    window.addEventListener('resize', resize);
-
-    window.addEventListener('mousemove', function(e) {
-        mouse.x = e.x;
-        mouse.y = e.y;
-    });
-    window.addEventListener('mouseout', function() {
-        mouse.x = null;
-        mouse.y = null;
-    });
-
-    class Particle {
-        constructor() {
-            this.x = Math.random() * canvas.width;
-            this.y = Math.random() * canvas.height;
-            this.size = Math.random() * 1.5 + 0.5;
-            this.speedX = (Math.random() - 0.5) * 0.3;
-            this.speedY = (Math.random() - 0.5) * 0.3;
-            this.opacity = Math.random() * 0.4 + 0.1;
-        }
-        update() {
-            this.x += this.speedX;
-            this.y += this.speedY;
-            if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
-            if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
-
-            // Mouse repulsion
-            if (mouse.x !== null) {
-                const dx = this.x - mouse.x;
-                const dy = this.y - mouse.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist < mouse.radius) {
-                    const force = (mouse.radius - dist) / mouse.radius;
-                    this.x += dx * force * 0.02;
-                    this.y += dy * force * 0.02;
-                }
-            }
-        }
-        draw() {
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(239, 68, 68, ${this.opacity})`;
-            ctx.fill();
-        }
-    }
-
-    function init() {
-        particles = [];
-        const count = Math.min(80, Math.floor((canvas.width * canvas.height) / 15000));
-        for (let i = 0; i < count; i++) {
-            particles.push(new Particle());
-        }
-    }
+    function init(){particles=[];const c=Math.min(80,Math.floor((canvas.width*canvas.height)/15000));for(let i=0;i<c;i++)particles.push(new Particle());}
     init();
-
-    function connectParticles() {
-        for (let a = 0; a < particles.length; a++) {
-            for (let b = a + 1; b < particles.length; b++) {
-                const dx = particles[a].x - particles[b].x;
-                const dy = particles[a].y - particles[b].y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist < 140) {
-                    const opacity = (1 - dist / 140) * 0.12;
-                    ctx.beginPath();
-                    ctx.strokeStyle = `rgba(239, 68, 68, ${opacity})`;
-                    ctx.lineWidth = 0.5;
-                    ctx.moveTo(particles[a].x, particles[a].y);
-                    ctx.lineTo(particles[b].x, particles[b].y);
-                    ctx.stroke();
-                }
-            }
-        }
-    }
-
-    function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        particles.forEach(p => { p.update(); p.draw(); });
-        connectParticles();
-        requestAnimationFrame(animate);
-    }
-    animate();
-
-    window.addEventListener('resize', function() {
-        resize();
-        init();
-    });
+    function connect(){for(let a=0;a<particles.length;a++)for(let b=a+1;b<particles.length;b++){const dx=particles[a].x-particles[b].x,dy=particles[a].y-particles[b].y,d=Math.sqrt(dx*dx+dy*dy);if(d<140){ctx.beginPath();ctx.strokeStyle=`rgba(239,68,68,${(1-d/140)*0.12})`;ctx.lineWidth=0.5;ctx.moveTo(particles[a].x,particles[a].y);ctx.lineTo(particles[b].x,particles[b].y);ctx.stroke();}}}
+    function animate(){ctx.clearRect(0,0,canvas.width,canvas.height);particles.forEach(p=>{p.update();p.draw();});connect();requestAnimationFrame(animate);}
+    animate();window.addEventListener('resize',function(){resize();init();});
 })();
 
-// ── Scroll Reveal ──
-const revealElements = document.querySelectorAll('.reveal');
-const revealObserver = new IntersectionObserver(function(entries) {
-    entries.forEach(function(entry) {
-        if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-        }
-    });
-}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-revealElements.forEach(function(el) { revealObserver.observe(el); });
+const revealObserver=new IntersectionObserver(function(e){e.forEach(function(en){if(en.isIntersecting)en.target.classList.add('visible');});},{threshold:0.1,rootMargin:'0px 0px -50px 0px'});
+document.querySelectorAll('.reveal').forEach(function(el){revealObserver.observe(el);});
 
-// ── Skill Bars Animation ──
-const skillBars = document.querySelectorAll('.skill-bar-fill');
-const skillObserver = new IntersectionObserver(function(entries) {
-    entries.forEach(function(entry) {
-        if (entry.isIntersecting) {
-            const width = entry.target.getAttribute('data-width');
-            entry.target.style.width = width;
-            entry.target.classList.add('active');
-        }
-    });
-}, { threshold: 0.5 });
-skillBars.forEach(function(bar) { skillObserver.observe(bar); });
+const skillObserver=new IntersectionObserver(function(e){e.forEach(function(en){if(en.isIntersecting)en.target.style.width=en.target.getAttribute('data-width');});},{threshold:0.5});
+document.querySelectorAll('.skill-bar-fill').forEach(function(b){skillObserver.observe(b);});
 
-// ── Counter Animation ──
-function animateCounter(el, target, suffix) {
-    let current = 0;
-    const increment = target / 60;
-    const timer = setInterval(function() {
-        current += increment;
-        if (current >= target) {
-            current = target;
-            clearInterval(timer);
-        }
-        el.textContent = Math.floor(current) + (suffix || '');
-    }, 25);
-}
-
-const statsObserver = new IntersectionObserver(function(entries) {
-    entries.forEach(function(entry) {
-        if (entry.isIntersecting) {
-            animateCounter(document.getElementById('stat-projects'), 2, '+');
-            animateCounter(document.getElementById('stat-years'), 3, '+');
-            statsObserver.disconnect();
-        }
-    });
-}, { threshold: 0.5 });
+function animateCounter(el,target,suffix){let c=0;const inc=target/60;const t=setInterval(function(){c+=inc;if(c>=target){c=target;clearInterval(t);}el.textContent=Math.floor(c)+(suffix||'');},25);}
+const statsObserver=new IntersectionObserver(function(e){e.forEach(function(en){if(en.isIntersecting){animateCounter(document.getElementById('stat-projects'),2,'+');animateCounter(document.getElementById('stat-years'),3,'+');statsObserver.disconnect();}});},{threshold:0.5});
 statsObserver.observe(document.getElementById('stat-projects'));
 
-// ── Active Nav Link on Scroll ──
-const sections = document.querySelectorAll('section, header');
-const navLinks = document.querySelectorAll('.nav-link[data-section]');
+const sections=document.querySelectorAll('section,header'),navLinks=document.querySelectorAll('.nav-link[data-section]');
+window.addEventListener('scroll',function(){let c='';sections.forEach(function(s){if(pageYOffset>=s.offsetTop-150)c=s.getAttribute('id');});navLinks.forEach(function(l){l.classList.toggle('active',l.getAttribute('data-section')===c);});});
 
-window.addEventListener('scroll', function() {
-    let current = '';
-    sections.forEach(function(section) {
-        const sectionTop = section.offsetTop - 150;
-        if (pageYOffset >= sectionTop) {
-            current = section.getAttribute('id');
-        }
-    });
-    navLinks.forEach(function(link) {
-        link.classList.remove('active');
-        if (link.getAttribute('data-section') === current) {
-            link.classList.add('active');
-        }
-    });
-});
+const menuToggle=document.getElementById('menu-toggle'),mobileMenu=document.getElementById('mobile-menu'),mobileOverlay=document.getElementById('mobile-overlay'),bar1=document.getElementById('bar1'),bar2=document.getElementById('bar2'),bar3=document.getElementById('bar3');
+let menuOpen=false;
+function toggleMenu(){menuOpen=!menuOpen;mobileMenu.classList.toggle('open',menuOpen);mobileOverlay.classList.toggle('open',menuOpen);bar1.style.transform=menuOpen?'rotate(45deg) translate(3px, 3px)':'';bar2.style.opacity=menuOpen?'0':'1';bar3.style.transform=menuOpen?'rotate(-45deg) translate(3px, -3px)':'';}
+menuToggle.addEventListener('click',toggleMenu);mobileOverlay.addEventListener('click',toggleMenu);
+document.querySelectorAll('.mobile-link').forEach(function(l){l.addEventListener('click',function(){if(menuOpen)toggleMenu();});});
 
-// ── Mobile Menu ──
-const menuToggle = document.getElementById('menu-toggle');
-const mobileMenu = document.getElementById('mobile-menu');
-const mobileOverlay = document.getElementById('mobile-overlay');
-const bar1 = document.getElementById('bar1');
-const bar2 = document.getElementById('bar2');
-const bar3 = document.getElementById('bar3');
-let menuOpen = false;
+const navbar=document.getElementById('navbar');
+window.addEventListener('scroll',function(){if(window.pageYOffset>100){navbar.style.background='rgba(10,10,10,0.85)';navbar.style.boxShadow='0 4px 30px rgba(0,0,0,0.3)';}else{navbar.style.background='rgba(255,255,255,0.03)';navbar.style.boxShadow='0 4px 30px rgba(0,0,0,0.1)';}});
 
-function toggleMenu() {
-    menuOpen = !menuOpen;
-    mobileMenu.classList.toggle('open', menuOpen);
-    mobileOverlay.classList.toggle('open', menuOpen);
-    if (menuOpen) {
-        bar1.style.transform = 'rotate(45deg) translate(3px, 3px)';
-        bar2.style.opacity = '0';
-        bar3.style.transform = 'rotate(-45deg) translate(3px, -3px)';
-    } else {
-        bar1.style.transform = '';
-        bar2.style.opacity = '1';
-        bar3.style.transform = '';
-    }
-}
+function showToast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast toast-'+type+' show';setTimeout(function(){t.classList.remove('show');},3500);}
 
-menuToggle.addEventListener('click', toggleMenu);
-mobileOverlay.addEventListener('click', toggleMenu);
-document.querySelectorAll('.mobile-link').forEach(function(link) {
-    link.addEventListener('click', function() {
-        if (menuOpen) toggleMenu();
-    });
-});
-
-// ── Navbar Scroll Effect ──
-const navbar = document.getElementById('navbar');
-let lastScroll = 0;
-window.addEventListener('scroll', function() {
-    const currentScroll = window.pageYOffset;
-    if (currentScroll > 100) {
-        navbar.style.background = 'rgba(10,10,10,0.85)';
-        navbar.style.boxShadow = '0 4px 30px rgba(0,0,0,0.3)';
-    } else {
-        navbar.style.background = 'rgba(255,255,255,0.03)';
-        navbar.style.boxShadow = '0 4px 30px rgba(0,0,0,0.1)';
-    }
-    lastScroll = currentScroll;
-});
-
-// ── Toast Notification ──
-function showToast(message, type) {
-    const toast = document.getElementById('toast');
-    toast.textContent = message;
-    toast.className = 'toast toast-' + type + ' show';
-    setTimeout(function() {
-        toast.classList.remove('show');
-    }, 3500);
-}
-
-// ── Contact Form ──
-document.getElementById('contact-form').addEventListener('submit', function(e) {
+document.getElementById('contact-form').addEventListener('submit',function(e){
     e.preventDefault();
-    const name = document.getElementById('form-name').value.trim();
-    const email = document.getElementById('form-email').value.trim();
-    const message = document.getElementById('form-message').value.trim();
-
-    if (!name || !email || !message) {
-        showToast('Please fill in all required fields.', 'error');
-        return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        showToast('Please enter a valid email address.', 'error');
-        return;
-    }
-
-    const btn = document.getElementById('submit-btn');
-    const btnText = document.getElementById('btn-text');
-    btn.disabled = true;
-    btn.style.opacity = '0.7';
-    btnText.textContent = 'Sending...';
-
-    // Simulate sending
-    setTimeout(function() {
-        btn.disabled = false;
-        btn.style.opacity = '1';
-        btnText.textContent = 'Send Message';
-        document.getElementById('contact-form').reset();
-        showToast('Message sent successfully! I\'ll get back to you soon.', 'success');
-    }, 1500);
+    const n=document.getElementById('form-name').value.trim(),em=document.getElementById('form-email').value.trim(),m=document.getElementById('form-message').value.trim();
+    if(!n||!em||!m){showToast('Please fill in all required fields.','error');return;}
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){showToast('Please enter a valid email address.','error');return;}
+    const btn=document.getElementById('submit-btn'),bt=document.getElementById('btn-text');
+    btn.disabled=true;btn.style.opacity='0.7';bt.textContent='Sending...';
+    setTimeout(function(){btn.disabled=false;btn.style.opacity='1';bt.textContent='Send Message';document.getElementById('contact-form').reset();showToast("Message sent successfully! I'll get back to you soon.",'success');},1500);
 });
 
-// ── Smooth scroll for all anchor links ──
-document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
-    anchor.addEventListener('click', function(e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    });
-});
+document.querySelectorAll('a[href^="#"]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();const t=document.querySelector(this.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth',block:'start'});});});
 </script>
 </body>
 </html>
